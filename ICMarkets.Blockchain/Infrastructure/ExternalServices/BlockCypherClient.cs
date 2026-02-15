@@ -13,15 +13,17 @@ namespace Infrastructure.ExternalServices
         public BlockCypherClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            _httpClient.BaseAddress = new Uri("https://api.blockcypher.com/v1/");
         }
 
-        public async Task<string> GetBlockchainDataRawAsync(string path)
+        
+
+        public async Task<string> GetRawJsonAsync(string path)
         {
-            // Path will be like "eth/main" or "btc/test3"
-            var response = await _httpClient.GetAsync($"/v1/{path}");
+            // "btc/main" or "eth/main"
+            var response = await _httpClient.GetAsync(path);
             response.EnsureSuccessStatusCode();
 
-            // Requirement 3: We must store the "Main data as provided in JSON"
             return await response.Content.ReadAsStringAsync();
         }
     }

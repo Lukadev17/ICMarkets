@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Domain.Entities;
+
+namespace Application.Interfaces
+{
+    public  interface IBlockchainService
+    {
+        Task<BlockchainInfo> GetAndSaveBlockchainDataAsync(string path);
+
+        Task<IEnumerable<BlockchainInfo>> GetStoredHistoryAsync();
+    }
+}

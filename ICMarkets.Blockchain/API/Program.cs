@@ -1,6 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
+using Infrastructure.ExternalServices;
+using Application.Interfaces;
+using Infrastructure.Services;
+using API.Middleware;
 
 namespace API
 {
@@ -10,17 +14,23 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Add services
 
-            // 1. Register the Database (SQLite)
+            // (SQLite)
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // 2. Register Health Checks (Requirement 4)
+            //HttpClient 
+            builder.Services.AddHttpClient<BlockCypherClient>();
+
+            //Interface
+            builder.Services.AddScoped<IBlockchainService, BlockchainService>();
+
+            //Health Checks
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
 
-            // 3. Register CORS (Requirement 4)
+            // 3. Register CORS
             builder.Services.AddCors(options => {
                 options.AddPolicy("AllowAll", policy =>
                     policy.AllowAnyOrigin()
@@ -34,18 +44,22 @@ namespace API
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseMiddleware<ExceptionMiddleware>();
+
+            //HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            app.MapHealthChecks("/health");
+
+           
+
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAll");
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
