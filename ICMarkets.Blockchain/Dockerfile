@@ -13,6 +13,9 @@ RUN dotnet publish "API/API.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
+EXPOSE 8080
 COPY --from=build /app/publish .
+
+ENV ConnectionStrings__DefaultConnection="Data Source=BlockchainData.db"
 
 ENTRYPOINT ["dotnet", "API.dll"]

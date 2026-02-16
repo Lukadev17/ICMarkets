@@ -14,23 +14,17 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services
-
-            // (SQLite)
+            // Infrastructure & DB
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            //HttpClient 
             builder.Services.AddHttpClient<BlockCypherClient>();
-
-            //Interface
             builder.Services.AddScoped<IBlockchainService, BlockchainService>();
 
             //Health Checks
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
 
-            // 3. Register CORS
+            // Register CORS
             builder.Services.AddCors(options => {
                 options.AddPolicy("AllowAll", policy =>
                     policy.AllowAnyOrigin()
@@ -46,21 +40,30 @@ namespace API
 
             app.UseMiddleware<ExceptionMiddleware>();
 
-            //HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.MapHealthChecks("/health");
-
-           
 
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseAuthorization();
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<ApplicationDbContext>();
+                    context.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while migrating the database.");
+                }
+            }
 
             app.Run();
         }

@@ -20,7 +20,6 @@ namespace Infrastructure.ExternalServices
 
         public async Task<string> GetRawJsonAsync(string path)
         {
-            // "btc/main" or "eth/main"
             var response = await _httpClient.GetAsync(path);
             response.EnsureSuccessStatusCode();
 

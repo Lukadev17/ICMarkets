@@ -13,7 +13,7 @@ namespace Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Requirement 3: Sorting by CreatedAt descending is easier with an index
+            
             modelBuilder.Entity<BlockchainInfo>().HasIndex(b => b.CreatedAt);
         }
     }

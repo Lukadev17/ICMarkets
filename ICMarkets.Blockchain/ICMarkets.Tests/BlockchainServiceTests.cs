@@ -8,6 +8,7 @@ using Infrastructure.ExternalServices;
 using Infrastructure.Persistence;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace ICMarkets.Tests
@@ -29,7 +30,7 @@ namespace ICMarkets.Tests
             await context.SaveChangesAsync();
 
             var mockClient = new Mock<BlockCypherClient>(new HttpClient());
-            var service = new BlockchainService(context, mockClient.Object);
+            var service = new BlockchainService(context, mockClient.Object, NullLogger<BlockchainService>.Instance);
             
             var result = (await service.GetStoredHistoryAsync()).ToList();
 
