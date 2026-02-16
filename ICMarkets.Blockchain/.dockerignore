@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+
+.vs/
+.vscode/
+
+ICMarkets.Tests/
+
+.git/
+.gitignore
+
+Dockerfile
+.dockerignore
